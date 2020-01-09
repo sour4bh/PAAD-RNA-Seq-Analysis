@@ -9,6 +9,8 @@ from sklearn.impute import KNNImputer
 from sklearn.model_selection import  train_test_split
 from sklearn.linear_model import LogisticRegression
 
+from sklearn.decomposition import PCA
+
 import seaborn as sns
 #%%
 gct = parse('PAAD.gct')
@@ -84,4 +86,14 @@ lr = LogisticRegression(penalty='l1', solver='liblinear')
 lr.fit(x_train, y_train)
 lr.score(x_test, y_test)
 sns.lineplot(data=list(lr.coef_))
+#%%
+pca = PCA(n_components=20, random_state=42)
+componenets = pd.DataFrame(pca.fit_transform(X))
+#%%
+pd.DataFrame(pca.explained_variance_ratio_).plot.bar()
+# %%
+componenets['labels'] = Y
+componenets
+# %%
+sns.scatterplot(x='0', y='1', hue='labels', data=componenets)
 # %%
