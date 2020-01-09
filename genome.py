@@ -16,6 +16,7 @@ from sklearn.cluster import KMeans
 
 import seaborn as sns
 import matplotlib.pyplot as plt
+
 #%%
 gct = parse('data/PAAD.gct')
 data = gct.data_df
@@ -44,7 +45,6 @@ for hist_other, other_meta in meta_col.groupby('histological_type_other'):
         for id_ in other_meta.index:
             nids.append(id_)
 print('#neuroendocrine : ', len(nids))
-print(nids)
 #%%
 Y = data.columns.tolist()
 for i, id_ in enumerate(Y):
@@ -71,25 +71,6 @@ sns.distplot(missing)
 X = data.to_numpy()
 X = KNNImputer(n_neighbors=5).fit_transform(X)
 X = StandardScaler().fit_transform(X)
-#%%
-x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
-print(y_test)
-#%%
-# # of neoendocrine samples in test data 
-print('# of neoendocrine samples in test data :', y_test.sum())
-#%%
-lr = LogisticRegression(penalty='l2')
-lr.fit(x_train, y_train)
-sns.lineplot(data=lr.decision_function(x_test))
-#%%
-print(lr.score(x_test, y_test))
-# %%
-sns.lineplot(data=list(lr.coef_))
-#%%
-lr = LogisticRegression(penalty='l1', solver='liblinear')
-lr.fit(x_train, y_train)
-lr.score(x_test, y_test)
-sns.lineplot(data=list(lr.coef_))
 #%%
 pca = PCA(n_components=20, random_state=42)
 componenets = pd.DataFrame(pca.fit_transform(X))
@@ -120,6 +101,27 @@ sns.scatterplot(x='0', y='1', style='predict', hue='labels', data=componenets)
 componenets['histological_type'] = meta_col['histological_type'].values
 componenets['histological_type_other'] = meta_col['histological_type_other'].values
 componenets[['labels', 'predict', 'histological_type', 'histological_type_other']][componenets.predict == 1]
+#%%
+x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
+print(y_test)
+#%%
+# # of neoendocrine samples in test data 
+print('# of neoendocrine samples in test data :', y_test.sum())
+#%%
+lr = LogisticRegression(penalty='l2')
+lr.fit(x_train, y_train)
+sns.lineplot(data=lr.decision_function(x_test))
+#%%
+print(lr.score(x_test, y_test))
+# %%
+sns.lineplot(data=list(lr.coef_))
+#%%
+lr = LogisticRegression(penalty='l1', solver='liblinear')
+lr.fit(x_train, y_train)
+lr.score(x_test, y_test)
+sns.lineplot(data=list(lr.coef_))
+
+
 #%%
 # remove neuroendocrine 
 delete = componenets[['labels', 'predict', 'histological_type', 'histological_type_other']][componenets.predict == 1].index
@@ -165,7 +167,10 @@ tempdir= None
 df = data2.T
 genset = pd.DataFrame(data={'name': ['type1ifn' for i in range(len(ifns))], 'member': ifns})
 
-os.mkdir('temp')
+try:
+    os.mkdir('temp')
+except FileExistsError:
+    pass
 df.to_csv('temp/expr.csv')
 
 members = genset['member'].unique()
@@ -187,7 +192,12 @@ for mx_diff in mx_diff_options:
     print(cmd)
     result = subprocess.run(cmd, stdout=subprocess.PIPE, shell=True)
     print(result.stdout.decode('utf-8'))
-    os.rename('temp/gsva_scores.csv', f'temp/gsva_scores_mx_diff_{"t" if mx_diff else "f"}.csv')
+    try:
+        os.remove(f'temp/gsva_scores_mx_diff_{"t" if mx_diff else "f"}.csv')
+    except FileNotFoundError:
+        pass
+    finally:
+        os.rename('temp/gsva_scores.csv', f'temp/gsva_scores_mx_diff_{"t" if mx_diff else "f"}.csv')
 # %%
 gsva_scores = pd.read_csv('temp/gsva_scores_mx_diff_t.csv').iloc[:,1:]
 gsva_scores = gsva_scores.append(pd.read_csv('temp/gsva_scores_mx_diff_f.csv').iloc[:,1:])
