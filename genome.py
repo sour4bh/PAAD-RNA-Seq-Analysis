@@ -107,6 +107,10 @@ for k in range(1,10):
     inertias.append(kmeans.inertia_)
 plt.plot(range(1,10), inertias, '-o')
 plt.show()
+# elbows at k=3
 #%%
-
+# K-Means using k=3 clusters on first 3 principal components
+kmeans = KMeans(n_clusters=3).fit(componenets.iloc[:,:3])
+componenets['predict'] = kmeans.predict(componenets.iloc[:,:3])
+sns.scatterplot(x='0', y='1', style='predict', data=componenets)
 # %%
