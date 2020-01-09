@@ -10,8 +10,10 @@ from sklearn.model_selection import  train_test_split
 from sklearn.linear_model import LogisticRegression
 
 from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
 
 import seaborn as sns
+import matplotlib.pyplot as plt
 #%%
 gct = parse('PAAD.gct')
 data = gct.data_df
@@ -92,8 +94,19 @@ componenets = pd.DataFrame(pca.fit_transform(X))
 #%%
 pd.DataFrame(pca.explained_variance_ratio_).plot.bar()
 # %%
+componenets.columns = list(map(str, componenets.columns))
 componenets['labels'] = Y
 componenets
 # %%
 sns.scatterplot(x='0', y='1', hue='labels', data=componenets)
+# %%
+inertias = []
+for k in range(1,10):
+    kmeans = KMeans(n_clusters=k)
+    kmeans.fit(componenets.iloc[:,:3])
+    inertias.append(kmeans.inertia_)
+plt.plot(range(1,10), inertias, '-o')
+plt.show()
+#%%
+
 # %%
