@@ -69,7 +69,7 @@ sns.distplot(missing)
 # Using KNN based imputer for missing values ref: https://academic.oup.com/bib/article/12/5/498/268546
 # X = SimpleImputer(strategy='constant', fill_value=0).fit_transform(X)
 X = data.to_numpy()
-X = KNNImputer(n_neighbors=5).fit_transform(X)
+X = KNNImputer(n_neighbors=5, weights='distance').fit_transform(X)
 X = StandardScaler().fit_transform(X)
 #%%
 pca = PCA(n_components=20, random_state=42)
