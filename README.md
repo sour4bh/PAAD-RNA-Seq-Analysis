@@ -1,2 +1,2 @@
-# PAADGeneExpression
-Analyzing Gene Expression data for Pancreatic Adenocarcinoma
+# PAAD RNA-Seq Analyis
+Analyzing Gene RNA Sequence data for Pancreatic Adenocarcinoma 
